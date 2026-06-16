@@ -81,7 +81,7 @@ Jupyter lab can be then accessed at `https://127.0.0.1:${JUPYTER_PORT}` (retriev
 ```shell
 docker compose exec jupyter bash
 ```
-After that run `poetry shell` to activate the virtual environment with the `docile` library and its dependencies installed.
+After that the `docile` library and its dependencies are already installed in the environment; prefix commands with `uv run ...` (e.g. `uv run jupyter lab`) to run them inside it.
 
 ## Predictions format and running evaluation
 
@@ -159,11 +159,11 @@ While it should not be needed, it is possible to (re)generate OCR from scratch (
 
 ## Development instructions
 
-For development, install [poetry](https://python-poetry.org/docs/) and run `poetry install`. Start a shell with the virtual environment activated with `poetry shell`. No other dependencies are needed to run pre-commit and the tests. It's recommended to use docker (as explained above) if you need the extra (interactive or ocr) dependencies.
+For development, install [uv](https://docs.astral.sh/uv/) and run `uv sync --locked`. This creates a virtual environment in `.venv` with the `docile` library and its dependencies installed. No other dependencies are needed to run pre-commit and the tests. It's recommended to use docker (as explained above) if you need the extra (interactive or ocr) dependencies.
 
-Install pre-commit with `pre-commit install` (don't forget you need to prepend all commands with `poetry run ...` if you did not run `poetry shell` first).
+Install pre-commit with `uv run pre-commit install` (prepend all commands with `uv run ...` to run them inside the project environment).
 
-Run tests by calling `pytest tests`.
+Run tests by calling `uv run pytest tests`.
 
 ## Dataset and benchmark paper and Supplementary Material
 The dataset, the benchmark tasks and the evaluation criteria are described in detail in the [dataset paper](https://arxiv.org/abs/2302.05658) which was accepted to ICDAR 2023. The provided link is to arXiv version that includes Supplementary Material. To cite the dataset, please use the following BibTeX entry:

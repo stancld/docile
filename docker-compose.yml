@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "${JUPYTER_PORT}:${JUPYTER_PORT}"
-    command: poetry run jupyter lab --ip=0.0.0.0 --port=${JUPYTER_PORT} --allow-root
+    command: uv run jupyter lab --ip=0.0.0.0 --port=${JUPYTER_PORT} --allow-root
     volumes:
       - "./:/app/:cached"
     deploy:
@@ -27,7 +27,7 @@ services:
     shm_size: "8gb"
     ports:
       - "${JUPYTER_PORT_GPU}:${JUPYTER_PORT_GPU}"
-    command: poetry run jupyter lab --ip=0.0.0.0 --port=${JUPYTER_PORT_GPU} --allow-root
+    command: uv run jupyter lab --ip=0.0.0.0 --port=${JUPYTER_PORT_GPU} --allow-root
     volumes:
       - "./:/app/:cached"
     deploy:
