@@ -61,7 +61,7 @@ function run_training() {
   mkdir -p ${output_dir}
   log="${output_dir}/log_train.txt"
 
-  training_cmd="TF_FORCE_GPU_ALLOW_GROWTH=\"true\" CUDA_VISIBLE_DEVICES=${GPU} poetry run python ${NER_SCRIPTS_DIR}/${cmd} ${params} 2>&1 | tee ${log}"
+  training_cmd="TF_FORCE_GPU_ALLOW_GROWTH=\"true\" CUDA_VISIBLE_DEVICES=${GPU} uv run python ${NER_SCRIPTS_DIR}/${cmd} ${params} 2>&1 | tee ${log}"
 
   echo "-----------"
   echo "Parameters:"
