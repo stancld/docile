@@ -1,4 +1,5 @@
-from typing import Sequence
+import itertools
+from collections.abc import Sequence
 
 
 def compute_average_precision(
@@ -54,9 +55,7 @@ def compute_average_precision(
         recall_precision_prev[1] = max(recall_precision_prev[1], recall_precision[1])
 
     average_precision = 0.0
-    for recall_precision, recall_precision_next in zip(
-        recall_precision_pairs[:-1], recall_precision_pairs[1:]
-    ):
+    for recall_precision, recall_precision_next in itertools.pairwise(recall_precision_pairs):
         # Notice that if there are multiple (recall,precision) pairs with the same recall, they are
         # sorted by precision (from highest to lowest). This means that only the first point (with
         # highest precision) influences the result (for the rest 'recall_diff == 0').

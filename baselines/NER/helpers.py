@@ -11,14 +11,17 @@ class FieldWithGroups(Field):
 
 
 def show_summary(args: argparse.Namespace, filename: str):
-    """Helper function showing the summary of surgery experiment instance given by runtime
+    (
+        """Helper function showing the summary of surgery experiment instance given by runtime
     arguments
 
     Parameters
     ----------
     args : argparse.Namespace
         input arguments
-    """ """"""
+    """
+        """"""
+    )
     # Helper function showing the summary of surgery experiment instance given by runtime
     # arguments
     # """

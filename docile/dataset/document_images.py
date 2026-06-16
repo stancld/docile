@@ -1,5 +1,4 @@
 import logging
-from typing import List
 
 from pdf2image import convert_from_bytes
 from PIL import Image
@@ -11,7 +10,7 @@ from docile.dataset.types import OptionalImageSize
 logger = logging.getLogger(__name__)
 
 
-class DocumentImages(CachedObject[List[Image.Image]]):
+class DocumentImages(CachedObject[list[Image.Image]]):
     def __init__(
         self,
         path: PathMaybeInZip,
@@ -42,7 +41,7 @@ class DocumentImages(CachedObject[List[Image.Image]]):
         self.page_count = page_count
         self.size = size
 
-    def from_disk(self) -> List[Image.Image]:
+    def from_disk(self) -> list[Image.Image]:
         images = []
         for page_i in range(self.page_count):
             page_path = DataPaths.cache_page_image_path(self.path, page_i)
@@ -58,13 +57,13 @@ class DocumentImages(CachedObject[List[Image.Image]]):
                 images.append(page_img)
         return images
 
-    def to_disk(self, content: List[Image.Image]) -> None:
+    def to_disk(self, content: list[Image.Image]) -> None:
         self.path.full_path.mkdir(parents=True, exist_ok=True)
         for page_i in range(self.page_count):
             page_path = DataPaths.cache_page_image_path(self.path, page_i)
             content[page_i].save(str(page_path.full_path))
 
-    def predict(self) -> List[Image.Image]:
+    def predict(self) -> list[Image.Image]:
         images = convert_from_bytes(self.pdf_path.read_bytes(), size=self.size)
         if len(images) != self.page_count:
             raise RuntimeError(

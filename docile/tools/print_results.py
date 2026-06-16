@@ -1,6 +1,6 @@
 import argparse
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import List, Mapping, Sequence, Tuple, Union
 
 from tabulate import tabulate
 
@@ -11,10 +11,10 @@ from docile.evaluation.evaluate import TASK_TO_PRIMARY_METRIC_NAME
 def _highlight_best_numbers(
     main_metric: str,
     headers: Sequence[str],
-    rows: Sequence[Sequence[Union[str, int]]],
+    rows: Sequence[Sequence[str | int]],
     tablefmt: str,
     floatfmt: str,
-) -> Tuple[List[str], List[List[Union[str, int]]]]:
+) -> tuple[list[str], list[list[str | int]]]:
     """Return updated headers and rows, highlighting the main metric with its best numbers."""
     if tablefmt != "github":
         raise NotImplementedError("Highlight only works for github style tables")
@@ -94,7 +94,7 @@ if __name__ == "__main__":
             row = [model_dir.name]
             for split in splits:
                 results_path = model_dir / f"{split}_results_{task}.json"
-                metrics: Mapping[str, Union[str, float]] = {m: "-" for m in metric_names}
+                metrics: Mapping[str, str | float] = dict.fromkeys(metric_names, "-")
                 if results_path.exists():
                     eval_result = EvaluationResult.from_file(results_path)
                     metrics = eval_result.get_metrics(task.lower())

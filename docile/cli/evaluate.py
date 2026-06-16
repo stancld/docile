@@ -1,5 +1,5 @@
+from collections.abc import Sequence
 from pathlib import Path
-from typing import List, Optional, Sequence
 
 import click
 
@@ -17,7 +17,7 @@ class NamedRangesParamType(click.ParamType):
 
     name = "named_range"
 
-    def convert(self, value: str, param: click.Option, ctx: click.Context) -> List[NamedRange]:
+    def convert(self, value: str, param: click.Option, ctx: click.Context) -> list[NamedRange]:
         """
         Convert the input value into list of named ranges.
 
@@ -39,7 +39,7 @@ class NamedRangesParamType(click.ParamType):
         """
         if value == "":
             return []
-        parsed_named_ranges: List[NamedRange] = []
+        parsed_named_ranges: list[NamedRange] = []
         for range_name in value.split(","):
             size_range = range_name.split("-")
             if range_name.isdigit():
@@ -135,7 +135,7 @@ def evaluate(
     dataset_path: Path,
     split: str,
     predictions: Path,
-    store_evaluation_result: Optional[Path],
+    store_evaluation_result: Path | None,
     iou_threshold: float,
     evaluate_x_shot_subsets: Sequence[NamedRange],
     evaluate_synthetic_subsets: bool,
@@ -223,19 +223,19 @@ def print_evaluation_report(
     evaluation_result_path: Path,
     evaluate_x_shot_subsets: Sequence[NamedRange],
     evaluate_synthetic_subsets: bool,
-    dataset_path: Optional[Path],
+    dataset_path: Path | None,
     evaluate_fieldtypes: bool,
     evaluate_also_text: bool,
 ) -> None:
     evaluation_result = EvaluationResult.from_file(evaluation_result_path)
-    subsets: List[Dataset] = []
+    subsets: list[Dataset] = []
     if len(evaluate_x_shot_subsets) > 0 or evaluate_synthetic_subsets:
         if dataset_path is None:
             raise ValueError(
                 "You need to provide --dataset-path when --evaluate-x-shot-subsets (used by "
                 "default) or --evaluate-synthetic-subsets are used."
             )
-        test_split_name: Optional[str] = None
+        test_split_name: str | None = None
         for split_name in ["test", "val"]:
             if evaluation_result.dataset_name.endswith(split_name):
                 test_split_name = split_name

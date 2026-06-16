@@ -256,6 +256,7 @@ class MyLayoutLMv3Config(PretrainedConfig):
     >>> # Accessing the model configuration
     >>> configuration = model.config
     ```"""
+
     model_type = "my-layoutlmv3"
 
     def __init__(

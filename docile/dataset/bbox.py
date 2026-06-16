@@ -1,6 +1,6 @@
 import dataclasses
 from functools import reduce
-from typing import Generic, Tuple, TypeVar, no_type_check
+from typing import Generic, TypeVar, no_type_check
 
 T = TypeVar("T", int, float)
 
@@ -31,7 +31,7 @@ class BBox(Generic[T]):
     def has_valid_relative_coords(self) -> bool:
         return 0 <= self.left <= self.right <= 1 and 0 <= self.top <= self.bottom <= 1
 
-    def to_tuple(self) -> Tuple[T, T, T, T]:
+    def to_tuple(self) -> tuple[T, T, T, T]:
         return self.left, self.top, self.right, self.bottom
 
     def intersects(self, other: "BBox") -> bool:
@@ -73,7 +73,7 @@ class BBox(Generic[T]):
         return self.bottom - self.top
 
     @property
-    def size(self) -> Tuple[T, T]:
+    def size(self) -> tuple[T, T]:
         return self.width, self.height
 
     @property
@@ -81,7 +81,7 @@ class BBox(Generic[T]):
         return self.width * self.height
 
     @property
-    def centroid(self) -> Tuple[T, T]:
+    def centroid(self) -> tuple[T, T]:
         ctr = ((self.left + self.right) / 2), ((self.top + self.bottom) / 2)
         return (round(ctr[0]), round(ctr[1])) if isinstance(self.left, int) else ctr
 

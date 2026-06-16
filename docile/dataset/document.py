@@ -1,6 +1,5 @@
 from pathlib import Path
 from types import TracebackType
-from typing import Optional, Tuple, Type, Union
 
 from PIL import Image
 
@@ -16,14 +15,14 @@ class Document:
     """
     Structure representing a single document, with or without annotations.
 
-    You can enter the document using the `with` statement to temporarily cache its annoations, ocr
+    You can enter the document using the `with` statement to temporarily cache its annotations, ocr
     and generated images in memory.
     """
 
     def __init__(
         self,
         docid: str,
-        dataset_path: Union[Path, str, DataPaths],
+        dataset_path: Path | str | DataPaths,
         load_annotations: bool = True,
         load_ocr: bool = True,
         cache_images: CachingConfig = CachingConfig.DISK,
@@ -77,7 +76,7 @@ class Document:
         self.cache_images = cache_images
 
         # Page count is always cached, even when otherwise caching is turned off.
-        self._page_count: Optional[int] = None
+        self._page_count: int | None = None
 
         self._open = 0
 
@@ -139,7 +138,7 @@ class Document:
 
         return self.images[image_size].content[page]
 
-    def page_image_size(self, page: int, dpi: int = 200) -> Tuple[int, int]:
+    def page_image_size(self, page: int, dpi: int = 200) -> tuple[int, int]:
         """
         Get (width, height) of the page when rendered with `self.page_image(page)` at `dpi`.
 
@@ -148,11 +147,10 @@ class Document:
         pdfs to images in a different way.
         """
         width_200dpi, height_200dpi = self.annotation.page_image_size_at_200dpi(page)
-        image_size = (
+        return (
             max(1, round(dpi / 200 * width_200dpi)),
             max(1, round(dpi / 200 * height_200dpi)),
         )
-        return image_size
 
     def __enter__(self) -> "Document":
         self._open += 1
@@ -163,9 +161,9 @@ class Document:
 
     def __exit__(
         self,
-        exc_type: Optional[Type[BaseException]],
-        exc: Optional[BaseException],
-        traceback: Optional[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        traceback: TracebackType | None,
     ) -> None:
         self._open -= 1
         if self._open == 0:

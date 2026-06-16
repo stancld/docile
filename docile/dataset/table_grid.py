@@ -1,5 +1,6 @@
 import dataclasses
-from typing import Any, Mapping, Sequence, Tuple
+from collections.abc import Mapping, Sequence
+from typing import Any
 
 from docile.dataset.bbox import BBox
 
@@ -45,8 +46,8 @@ class TableGrid:
     """
 
     bbox: BBox
-    rows_bbox_with_type: Sequence[Tuple[BBox, str]]
-    columns_bbox_with_type: Sequence[Tuple[BBox, str]]
+    rows_bbox_with_type: Sequence[tuple[BBox, str]]
+    columns_bbox_with_type: Sequence[tuple[BBox, str]]
     missing_columns: bool
     missing_second_table_on_page: bool
     table_border_type: str

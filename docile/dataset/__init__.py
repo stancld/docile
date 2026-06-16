@@ -67,13 +67,13 @@ LIR_FIELDTYPES = [
 ]
 
 __all__ = [
+    "KILE_FIELDTYPES",
+    "LIR_FIELDTYPES",
     "BBox",
     "CachingConfig",
     "Dataset",
     "Document",
     "Field",
-    "KILE_FIELDTYPES",
-    "LIR_FIELDTYPES",
     "TableGrid",
     "load_predictions",
     "store_predictions",

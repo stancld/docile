@@ -1,7 +1,6 @@
 import random
 from copy import deepcopy
 from dataclasses import replace
-from typing import Tuple
 
 import pytest
 
@@ -23,7 +22,7 @@ def mock_evaluation_result() -> EvaluationResult:
     field1 = Field(BBox(0, 0, 1, 1), page=0, score=1, fieldtype="f1")
     field05 = Field(BBox(0, 0, 1, 1), page=0, score=0.5, fieldtype="f05")
     field_ap_only = Field(BBox(0, 0, 1, 1), page=0, score=1, fieldtype="f1", use_only_for_ap=True)
-    evaluation_result = EvaluationResult(
+    return EvaluationResult(
         task_to_docid_to_matching={
             "kile": {
                 "a": FieldMatching(
@@ -52,7 +51,6 @@ def mock_evaluation_result() -> EvaluationResult:
         dataset_name="mock-dataset",
         iou_threshold=1.0,
     )
-    return evaluation_result
 
 
 def test_evaluation_result_get_primary_metric(mock_evaluation_result: EvaluationResult) -> None:
@@ -132,9 +130,9 @@ Notes:
 def _assert_metrics_at_least(
     evaluation_result: EvaluationResult,
     minimum_value: float,
-    tasks: Tuple[str, ...] = ("kile", "lir"),
-    eval_same_text: Tuple[bool, ...] = (False, True),
-    check_metric_names: Tuple[str, ...] = ("AP", "f1", "precision", "recall"),
+    tasks: tuple[str, ...] = ("kile", "lir"),
+    eval_same_text: tuple[bool, ...] = (False, True),
+    check_metric_names: tuple[str, ...] = ("AP", "f1", "precision", "recall"),
 ) -> None:
     for task in tasks:
         for same_text in eval_same_text:

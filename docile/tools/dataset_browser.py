@@ -1,7 +1,8 @@
+import contextlib
 import enum
 import warnings
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import List, Mapping, Optional, Tuple
 
 import ipywidgets as widgets
 import plotly.graph_objects as go
@@ -88,10 +89,10 @@ class DatasetBrowser:
         dataset: Dataset,
         doc_i: int = 0,
         page_i: int = 0,
-        kile_matching: Optional[Mapping] = None,
-        lir_matching: Optional[Mapping] = None,
-        kile_predictions: Optional[Mapping] = None,
-        lir_predictions: Optional[Mapping] = None,
+        kile_matching: Mapping | None = None,
+        lir_matching: Mapping | None = None,
+        kile_predictions: Mapping | None = None,
+        lir_predictions: Mapping | None = None,
         display_grid: bool = False,
     ) -> None:
         """
@@ -193,14 +194,14 @@ class DatasetBrowser:
         with self.output:
             clear_output()
             print(  # noqa T201
-                f"document {self.dataset[self.doc_i].docid} ({self.doc_i+1}/{len(self.dataset)}), "
-                f"page {self.page_i+1}/{self.dataset[self.doc_i].page_count}"
+                f"document {self.dataset[self.doc_i].docid} ({self.doc_i + 1}/{len(self.dataset)}), "
+                f"page {self.page_i + 1}/{self.dataset[self.doc_i].page_count}"
             )
             self.plot_page()
 
     def get_displayboxes_and_resolve_overlaps(
-        self, fields_types: List[Tuple[Field, DisplayType]], merge_iou: float = 0.7
-    ) -> List[DisplayBox]:
+        self, fields_types: list[tuple[Field, DisplayType]], merge_iou: float = 0.7
+    ) -> list[DisplayBox]:
         # sort from largest to smallest for interactive browsing, so that smaller bboxes interact
         # on top of the larger
         fields_types = sorted(fields_types, key=lambda f: -f[0].bbox.area)
@@ -232,7 +233,7 @@ class DatasetBrowser:
         multiline_text = field.text.replace("\n", "<br>") if field.text is not None else ""
         return f"[{prefix}{field.fieldtype}{li_suffix}]<br>{multiline_text}"
 
-    def draw_fields(self, display_boxes: List[DisplayBox]) -> None:
+    def draw_fields(self, display_boxes: list[DisplayBox]) -> None:
         displayed_types = set()
         # Add field bounding boxes
         for display_box in display_boxes:
@@ -278,7 +279,7 @@ class DatasetBrowser:
                     )
                 )
 
-    def get_all_displayboxes(self) -> List[DisplayBox]:
+    def get_all_displayboxes(self) -> list[DisplayBox]:
         annotation = self.dataset[self.doc_i].annotation
 
         display_boxes = []
@@ -339,13 +340,11 @@ class DatasetBrowser:
                     ]
                 )
         else:
-            try:
+            # annotations not available is fine, this can happen for test set or unlabeled set
+            with contextlib.suppress(KeyError):
                 fields_types.extend(
                     [(f, DisplayType.ANNOTATION) for f in annotation.page_fields(self.page_i)]
                 )
-            except KeyError:
-                # annotations not available, this can happen for test set or unlabeled set
-                pass
             if self.kile_predictions is not None:
                 fields_types.extend(
                     [
@@ -390,13 +389,11 @@ class DatasetBrowser:
                     ]
                 )
         else:
-            try:
+            # annotations not available is fine, this can happen for test set or unlabeled set
+            with contextlib.suppress(KeyError):
                 fields_types.extend(
                     [(f, DisplayType.ANNOTATION) for f in annotation.page_li_fields(self.page_i)]
                 )
-            except KeyError:
-                # annotations not available, this can happen for test set or unlabeled set
-                pass
             if self.lir_predictions is not None:
                 fields_types.extend(
                     [

@@ -3,7 +3,7 @@ import functools
 import logging
 from bisect import bisect_left, bisect_right
 from collections import defaultdict
-from typing import List, Sequence, Set
+from collections.abc import Sequence
 
 from docile.dataset import BBox, Document, Field
 
@@ -32,7 +32,7 @@ class PCCSet:
             page: sorted(page_pccs, key=lambda p: p.y) for page, page_pccs in page_to_pccs.items()
         }
 
-    def get_covered_pccs(self, bbox: BBox, page: int) -> Set[PCC]:
+    def get_covered_pccs(self, bbox: BBox, page: int) -> set[PCC]:
         """Return all pccs on `page` covered by `bbox`."""
 
         # All pccs on the page are sorted by x and y coordinates. Then we find all pccs between
@@ -69,7 +69,7 @@ def get_document_pccs(document: Document) -> PCCSet:
     return PCCSet(pccs)
 
 
-def _get_snapped_ocr_words(document: Document) -> List[Field]:
+def _get_snapped_ocr_words(document: Document) -> list[Field]:
     """Get OCR words snapped to the text."""
     words = []
     with document:
@@ -85,7 +85,7 @@ def _get_snapped_ocr_words(document: Document) -> List[Field]:
     return words
 
 
-def _calculate_pccs(bbox: BBox, text: str, page: int) -> List[PCC]:
+def _calculate_pccs(bbox: BBox, text: str, page: int) -> list[PCC]:
     if text == "":
         raise ValueError("Cannot calculate PCCs from empty text")
 

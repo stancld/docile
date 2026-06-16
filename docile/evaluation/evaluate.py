@@ -3,9 +3,9 @@ import json
 import logging
 import operator
 from collections import Counter
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 from tabulate import tabulate
 from tqdm import tqdm
@@ -19,7 +19,7 @@ from docile.evaluation.pcc_field_matching import FieldMatching, get_matches
 logger = logging.getLogger(__name__)
 
 
-PredictionSortKey = Tuple[Tuple[bool, float], int, str]
+PredictionSortKey = tuple[tuple[bool, float], int, str]
 
 TASK_TO_PRIMARY_METRIC_NAME = {"kile": "AP", "lir": "f1"}
 METRIC_NAMES = ["AP", "f1", "precision", "recall", "TP", "FP", "FN"]
@@ -82,8 +82,8 @@ class EvaluationResult:
         task: str,
         same_text: bool = False,
         fieldtype: str = "",
-        docids: Optional[Sequence[str]] = None,
-    ) -> Dict[str, float]:
+        docids: Sequence[str] | None = None,
+    ) -> dict[str, float]:
         """Get metrics based on several filters.
 
         Parameters
@@ -120,7 +120,7 @@ class EvaluationResult:
 
     def print_report(
         self,
-        subsets: Sequence[Union[Dataset, Document]] = (),
+        subsets: Sequence[Dataset | Document] = (),
         include_fieldtypes: bool = True,
         include_same_text: bool = False,
         show_legend: bool = True,
@@ -150,7 +150,7 @@ class EvaluationResult:
         Multi-line string with the human-readable report.
         """
 
-        def get_subset_docids(subset: Union[Document, Dataset]) -> Sequence[str]:
+        def get_subset_docids(subset: Document | Dataset) -> Sequence[str]:
             return [subset.docid] if isinstance(subset, Document) else subset.docids
 
         # When there are two or more subsets, a table with subset summary is shown, followed by
@@ -190,7 +190,7 @@ class EvaluationResult:
 
                 assert set(summary_metrics.keys()) == set(METRIC_NAMES)
                 if len(subsets) > 1:
-                    headers = ["subsets"] + METRIC_NAMES
+                    headers = ["subsets", *METRIC_NAMES]
                     rows = [[self.dataset_name] + [summary_metrics[m] for m in METRIC_NAMES]]
                     for subset in subsets:
                         subset_metrics = self.get_metrics(
@@ -198,7 +198,7 @@ class EvaluationResult:
                         )
                         rows.append([str(subset)] + [subset_metrics[m] for m in METRIC_NAMES])
                 else:
-                    headers = ["fieldtype"] + METRIC_NAMES
+                    headers = ["fieldtype", *METRIC_NAMES]
                     rows = [["**-> micro average**"] + [summary_metrics[m] for m in METRIC_NAMES]]
                     if include_fieldtypes:
                         fieldtypes = KILE_FIELDTYPES if task == "kile" else LIR_FIELDTYPES
@@ -332,8 +332,8 @@ def evaluate_dataset(
 
 
 def compute_metrics(
-    docid_to_matching: Mapping[str, FieldMatching]
-) -> Dict[str, Union[int, float]]:
+    docid_to_matching: Mapping[str, FieldMatching],
+) -> dict[str, int | float]:
     """Compute different metrics for the given matchings between predictions and annotations."""
     ap = compute_average_precision(
         sorted_predictions_matched=_sort_predictions(docid_to_matching),
@@ -355,10 +355,7 @@ def compute_metrics(
 
     precision = true_positives / total_predictions if total_predictions else 0.0
     recall = true_positives / total_annotations if total_annotations else 0.0
-    if precision + recall == 0:
-        f1 = 0.0
-    else:
-        f1 = 2 * precision * recall / (precision + recall)
+    f1 = 0.0 if precision + recall == 0 else 2 * precision * recall / (precision + recall)
 
     return {
         "AP": ap,
@@ -412,25 +409,23 @@ def _validate_predictions(
             )
 
     for task, docid_to_predictions in task_to_docid_to_predictions.items():
-        if task == "kile":
-            if any(
-                pred.line_item_id is not None
-                for predictions in docid_to_predictions.values()
-                for pred in predictions
-            ):
-                raise PredictionsValidationError(
-                    f"{task.upper()}: Prediction has extra 'line_item_id'."
-                )
+        if task == "kile" and any(
+            pred.line_item_id is not None
+            for predictions in docid_to_predictions.values()
+            for pred in predictions
+        ):
+            raise PredictionsValidationError(
+                f"{task.upper()}: Prediction has extra 'line_item_id'."
+            )
 
-        if task == "lir":
-            if any(
-                pred.line_item_id is None
-                for predictions in docid_to_predictions.values()
-                for pred in predictions
-            ):
-                raise PredictionsValidationError(
-                    f"{task.upper()}: Prediction is missing 'line_item_id'."
-                )
+        if task == "lir" and any(
+            pred.line_item_id is None
+            for predictions in docid_to_predictions.values()
+            for pred in predictions
+        ):
+            raise PredictionsValidationError(
+                f"{task.upper()}: Prediction is missing 'line_item_id'."
+            )
 
     for task, docid_to_predictions in task_to_docid_to_predictions.items():
         have_scores = sum(
@@ -496,7 +491,7 @@ def _sort_predictions(docid_to_matching: Mapping[str, FieldMatching]) -> Sequenc
     Indicator for each prediction whether it was matched, sorted by the criteria explained in
     `_get_prediction_sort_key`.
     """
-    sort_key_prediction_matched: List[Tuple[PredictionSortKey, bool]] = []
+    sort_key_prediction_matched: list[tuple[PredictionSortKey, bool]] = []
     total_annotations = 0
     for docid, matching in docid_to_matching.items():
         for pred_i, (pred, gold) in enumerate(matching.ordered_predictions_with_match):
@@ -512,7 +507,7 @@ def _sort_predictions(docid_to_matching: Mapping[str, FieldMatching]) -> Sequenc
 
 
 def _get_prediction_sort_key(
-    score_sort_key: Tuple[bool, float], prediction_i: int, docid: str
+    score_sort_key: tuple[bool, float], prediction_i: int, docid: str
 ) -> PredictionSortKey:
     """
     Get a sort key for a prediction.

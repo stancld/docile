@@ -20,7 +20,7 @@ from transformers.utils import check_min_version
 
 from docile.dataset import Dataset
 
-# check min transfomers version
+# check min transformers version
 check_min_version("4.5.0")
 
 logger = logging.getLogger(__name__)
@@ -436,17 +436,17 @@ class DataLoaderWrapper:
 
     def adjust_inputs(self, encodings):
         temp_input_ids = torch.full([1, self.max_words], self.tokenizer.pad_token_id)
-        temp_input_ids[
-            :, : min(encodings.input_ids.shape[1], self.max_words)
-        ] = encodings.input_ids[:, : self.max_words]
+        temp_input_ids[:, : min(encodings.input_ids.shape[1], self.max_words)] = (
+            encodings.input_ids[:, : self.max_words]
+        )
         temp_bbox = torch.full([1, self.max_words, 4], 0.0)
         temp_bbox[:, : min(encodings.input_ids.shape[1], self.max_words), :] = encodings.bbox[
             :, : self.max_words, :
         ]
         temp_attn_mask = torch.full([1, self.max_words], 0)
-        temp_attn_mask[
-            :, : min(encodings.input_ids.shape[1], self.max_words)
-        ] = encodings.attention_mask[:, : self.max_words]
+        temp_attn_mask[:, : min(encodings.input_ids.shape[1], self.max_words)] = (
+            encodings.attention_mask[:, : self.max_words]
+        )
         encodings["bbox"] = temp_bbox
         encodings["input_ids"] = temp_input_ids
         encodings["attention_mask"] = temp_attn_mask

@@ -1,6 +1,6 @@
 from enum import Enum, auto
 from types import TracebackType
-from typing import Generic, Optional, Type, TypeVar
+from typing import Generic, TypeVar
 
 from docile.dataset.paths import PathMaybeInZip
 
@@ -34,7 +34,7 @@ class CachedObject(Generic[CT]):
 
     def __init__(self, path: PathMaybeInZip, cache: CachingConfig):
         # initialize in-memory cache
-        self._content: Optional[CT] = None
+        self._content: CT | None = None
 
         self.path = path
         self.memory_cache_permanent = cache.memory_cache
@@ -58,9 +58,9 @@ class CachedObject(Generic[CT]):
 
     def __exit__(
         self,
-        exc_type: Optional[Type[BaseException]],
-        exc: Optional[BaseException],
-        traceback: Optional[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        traceback: TracebackType | None,
     ) -> None:
         if not self.memory_cache_permanent:
             self.memory_cache = False
@@ -69,7 +69,7 @@ class CachedObject(Generic[CT]):
     def from_disk(self) -> CT:
         raise NotImplementedError
 
-    def to_disk(self, content: CT) -> None:  # noqa: U100
+    def to_disk(self, content: CT) -> None:
         raise NotImplementedError
 
     def predict(self) -> CT:
