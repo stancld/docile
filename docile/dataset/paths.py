@@ -1,5 +1,5 @@
 from pathlib import Path, PurePosixPath
-from typing import Optional, Union
+from typing import Union
 from zipfile import ZipFile
 
 from docile.dataset.types import OptionalImageSize
@@ -11,14 +11,14 @@ class PathMaybeInZip:
     def __init__(
         self,
         root_path: Path,
-        relative_path: Union[PurePosixPath, str] = "",
-        open_zip_file: Optional[ZipFile] = None,
+        relative_path: PurePosixPath | str = "",
+        open_zip_file: ZipFile | None = None,
     ):
         self.root_path = root_path
         self.relative_path = PurePosixPath(relative_path)
 
         if self.is_in_zip() and open_zip_file is None:
-            self._zip_file: Optional[ZipFile] = ZipFile(self.root_path, "r")
+            self._zip_file: ZipFile | None = ZipFile(self.root_path, "r")
             self._zip_file_owner = True
         else:
             self._zip_file = open_zip_file

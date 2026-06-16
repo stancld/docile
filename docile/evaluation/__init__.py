@@ -3,9 +3,9 @@ from docile.evaluation.evaluation_subsets import NamedRange, get_evaluation_subs
 from docile.evaluation.pcc import PCC, PCCSet, get_document_pccs
 
 __all__ = [
+    "PCC",
     "EvaluationResult",
     "NamedRange",
-    "PCC",
     "PCCSet",
     "evaluate_dataset",
     "get_document_pccs",

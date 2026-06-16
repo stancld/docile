@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Dict, Iterable, List, Optional, Sequence, Tuple
+from collections.abc import Iterable, Sequence
 
 import networkx
 
@@ -39,7 +39,7 @@ class LineItemsGraph:
     def get_pair_field_matching(self, pred_li_i: int, gold_li_i: int) -> FieldMatching:
         return self.G.edges[(0, pred_li_i), (1, gold_li_i)]["field_matching"]
 
-    def get_maximum_matching(self) -> Dict[int, int]:
+    def get_maximum_matching(self) -> dict[int, int]:
         """
         Return the maximum matching between the prediction and gold line items.
 
@@ -92,7 +92,7 @@ def get_lir_matches(
     annotations: Sequence[Field],
     pcc_set: PCCSet,
     iou_threshold: float = 1,
-) -> Tuple[FieldMatching, Dict[int, int]]:
+) -> tuple[FieldMatching, dict[int, int]]:
     """
     Get matching of line item fields in the document.
 
@@ -152,7 +152,7 @@ def get_lir_matches(
     maximum_matching = line_items_graph.get_maximum_matching()
 
     # Construct matching on the field level from the line item matching.
-    ordered_predictions_with_match: List[Tuple[Field, Optional[Field]]] = []
+    ordered_predictions_with_match: list[tuple[Field, Field | None]] = []
     for pred_i, pred in enumerate(predictions):
         pred_li_i = _get_line_item_id(pred)
         if pred_li_i not in maximum_matching:
@@ -168,7 +168,7 @@ def get_lir_matches(
             field_matching.ordered_predictions_with_match[pred_i_in_li]
         )
 
-    false_negatives: List[Field] = []
+    false_negatives: list[Field] = []
     maximum_matching_gold_to_pred = {v: k for k, v in maximum_matching.items()}
     for gold_li_i, golds in gold_line_items.items():
         if gold_li_i in maximum_matching_gold_to_pred:

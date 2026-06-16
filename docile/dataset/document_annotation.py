@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from docile.dataset.cached_object import CachedObject, CachingConfig
 from docile.dataset.field import Field
@@ -7,7 +7,7 @@ from docile.dataset.paths import PathMaybeInZip
 from docile.dataset.table_grid import TableGrid
 
 
-class DocumentAnnotation(CachedObject[Dict]):
+class DocumentAnnotation(CachedObject[dict]):
     """
     All annotations available for the document.
 
@@ -28,7 +28,7 @@ class DocumentAnnotation(CachedObject[Dict]):
     def __init__(self, path: PathMaybeInZip, cache: CachingConfig = CachingConfig.DISK) -> None:
         super().__init__(path=path, cache=cache)
 
-    def from_disk(self) -> Dict[str, Any]:
+    def from_disk(self) -> dict[str, Any]:
         return json.loads(self.path.read_bytes())
 
     @property
@@ -36,25 +36,25 @@ class DocumentAnnotation(CachedObject[Dict]):
         return self.content["metadata"]["page_count"]
 
     @property
-    def fields(self) -> List[Field]:
+    def fields(self) -> list[Field]:
         """All KILE fields on the document."""
         return [Field.from_dict(a) for a in self.content["field_extractions"]]
 
-    def page_fields(self, page: int) -> List[Field]:
+    def page_fields(self, page: int) -> list[Field]:
         """KILE fields on the given page of the document."""
         return [f for f in self.fields if f.page == page]
 
     @property
-    def li_fields(self) -> List[Field]:
+    def li_fields(self) -> list[Field]:
         """All LI fields on the document."""
         return [Field.from_dict(a) for a in self.content["line_item_extractions"]]
 
-    def page_li_fields(self, page: int) -> List[Field]:
+    def page_li_fields(self, page: int) -> list[Field]:
         """LI fields on the given page of the document."""
         return [f for f in self.li_fields if f.page == page]
 
     @property
-    def li_headers(self) -> List[Field]:
+    def li_headers(self) -> list[Field]:
         """
         Fields corresponding to column headers in tables.
 
@@ -62,7 +62,7 @@ class DocumentAnnotation(CachedObject[Dict]):
         """
         return [Field.from_dict(a) for a in self.content["line_item_headers"]]
 
-    def page_li_headers(self, page: int) -> List[Field]:
+    def page_li_headers(self, page: int) -> list[Field]:
         """Fields corresponding to column headers in tables on the given page."""
         return [f for f in self.li_headers if f.page == page]
 
@@ -75,7 +75,7 @@ class DocumentAnnotation(CachedObject[Dict]):
         """
         return self.content["metadata"]["cluster_id"]
 
-    def page_image_size_at_200dpi(self, page: int) -> Tuple[int, int]:
+    def page_image_size_at_200dpi(self, page: int) -> tuple[int, int]:
         """
         Page image size at 200 DPI.
 
@@ -97,7 +97,7 @@ class DocumentAnnotation(CachedObject[Dict]):
     def language(self) -> str:
         return self.content["metadata"]["language"]
 
-    def get_table_grid(self, page: int) -> Optional[TableGrid]:
+    def get_table_grid(self, page: int) -> TableGrid | None:
         """
         Get table structure on a given page.
 

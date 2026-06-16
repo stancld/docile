@@ -1,11 +1,11 @@
-from typing import List, Optional, Sequence, Tuple
+from collections.abc import Sequence
 
 from docile.dataset import CachingConfig, Dataset
 
-NamedRange = Tuple[str, Tuple[int, Optional[int]]]
+NamedRange = tuple[str, tuple[int, int | None]]
 
 
-def size_in_range(size: int, size_range: Tuple[int, Optional[int]]) -> bool:
+def size_in_range(size: int, size_range: tuple[int, int | None]) -> bool:
     """
     Test if the cluster size lies in the given range.
 
@@ -21,7 +21,7 @@ def size_in_range(size: int, size_range: Tuple[int, Optional[int]]) -> bool:
 
 def get_x_shot_subsets(
     test: Dataset, train: Dataset, named_ranges: Sequence[NamedRange]
-) -> List[Dataset]:
+) -> list[Dataset]:
     """
     Find subsets of test corresponding to x-shot clusters.
 
@@ -61,7 +61,7 @@ def get_x_shot_subsets(
     ]
 
 
-def get_synthetic_subset(test: Dataset, synthetic_sources: Dataset) -> Optional[Dataset]:
+def get_synthetic_subset(test: Dataset, synthetic_sources: Dataset) -> Dataset | None:
     """
     Get subset of test corresponding to clusters with synthetic data available.
 
@@ -79,7 +79,7 @@ def get_synthetic_subset(test: Dataset, synthetic_sources: Dataset) -> Optional[
 
 def get_evaluation_subsets(
     test: Dataset, named_ranges: Sequence[NamedRange], synthetic: bool
-) -> List[Dataset]:
+) -> list[Dataset]:
     """
     Find subsets corresponding to x-shot and/or synthetic clusters.
 

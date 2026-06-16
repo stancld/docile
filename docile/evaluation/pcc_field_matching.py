@@ -1,7 +1,8 @@
 import dataclasses
 import itertools
 from collections import defaultdict
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
+from collections.abc import Mapping, Sequence
+from typing import Any
 
 from docile.dataset import BBox, Field
 from docile.evaluation.pcc import PCCSet
@@ -30,7 +31,7 @@ class FieldMatching:
     * false_negatives: annotations that were not matched.
     """
 
-    ordered_predictions_with_match: Sequence[Tuple[Field, Optional[Field]]]
+    ordered_predictions_with_match: Sequence[tuple[Field, Field | None]]
     false_negatives: Sequence[Field]  # not matched annotations
 
     @property
@@ -83,13 +84,13 @@ class FieldMatching:
             Remove all predictions with the flag `use_only_for_ap`.
         """
 
-        def is_fieldtype_ok(ft: Optional[str]) -> bool:
-            return fieldtype == "" or ft == fieldtype
+        def is_fieldtype_ok(ft: str | None) -> bool:
+            return fieldtype in ("", ft)
 
         new_false_negatives = [
             gold for gold in self.false_negatives if is_fieldtype_ok(gold.fieldtype)
         ]
-        new_ordered_predictions_with_match: List[Tuple[Field, Optional[Field]]] = []
+        new_ordered_predictions_with_match: list[tuple[Field, Field | None]] = []
         for pred, gold in self.ordered_predictions_with_match:
             if not is_fieldtype_ok(pred.fieldtype):
                 continue
@@ -109,7 +110,7 @@ class FieldMatching:
         dct_decoded_fields = {key: cls._decode_fields(sequence) for key, sequence in dct.items()}
         return cls(**dct_decoded_fields)  # type: ignore
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             field.name: self._encode_fields(getattr(self, field.name))
             for field in dataclasses.fields(self)
@@ -117,8 +118,8 @@ class FieldMatching:
 
     @staticmethod
     def _decode_fields(
-        collection: Union[Mapping, Sequence, Tuple, None]
-    ) -> Union[Field, List, Tuple, None]:
+        collection: Mapping | Sequence | tuple | None,
+    ) -> Field | list | tuple | None:
         if collection is None:
             return None
         if isinstance(collection, dict):
@@ -131,8 +132,8 @@ class FieldMatching:
 
     @staticmethod
     def _encode_fields(
-        collection: Union[Field, Sequence, Tuple, None]
-    ) -> Union[Mapping, List, Tuple, None]:
+        collection: Field | Sequence | tuple | None,
+    ) -> Mapping | list | tuple | None:
         if collection is None:
             return None
         if isinstance(collection, Field):
@@ -187,7 +188,7 @@ def get_matches(
     for a in annotations:
         fieldtype_page_to_annotations[a.fieldtype][a.page].append(a)
 
-    ordered_predictions_with_match: List[Tuple[Field, Optional[Field]]] = [
+    ordered_predictions_with_match: list[tuple[Field, Field | None]] = [
         (pred, None) for pred in predictions
     ]
     for pred_i, pred in sorted(enumerate(predictions), key=_get_sort_key_by_score):
@@ -215,7 +216,7 @@ def get_matches(
     return FieldMatching(ordered_predictions_with_match, false_negatives)
 
 
-def _get_sort_key_by_score(pred_with_index: Tuple[int, Field]) -> Tuple[Tuple[bool, float], int]:
+def _get_sort_key_by_score(pred_with_index: tuple[int, Field]) -> tuple[tuple[bool, float], int]:
     """Sort predictions by score, use original order for equal scores."""
     pred_i, pred = pred_with_index
     return (pred.score_sort_key, pred_i)

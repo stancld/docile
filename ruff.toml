@@ -1,0 +1,116 @@
+# Linting and formatting configuration for docile. Rules adapted from the internal rir
+# ruff config. Formatting is handled by ruff-format, import sorting by the `I` (isort)
+# family, and docstring conventions by the `D` (pydocstyle) family.
+line-length = 99
+target-version = "py313"
+extend-exclude = [
+    ".git",
+    ".mypy_cache",
+    "__pycache__",
+    ".pytest_cache",
+    "data",
+    "docs",
+]
+
+[lint]
+select = [
+    "B",  # flake8-bugbear
+    "E",  # pycodestyle errors
+    "F",  # pyflakes
+    "W",  # pycodestyle warnings
+]
+extend-select = [
+    "ARG",  # flake8-unused-arguments
+    "C4",  # flake8-comprehensions
+    "D",  # pydocstyle
+    "ERA",  # eradicate
+    "EXE",  # flake8-executable
+    "G",  # flake8-logging-format
+    "I",  # isort
+    "ICN",  # flake8-import-conventions
+    "NPY",  # numpy-specific rules
+    "PL",  # pylint
+    "RET",  # flake8-return
+    "RUF",  # ruff-specific rules
+    "SIM",  # flake8-simplify
+    "T10",  # flake8-debugger (breakpoint)
+    "T20",  # flake8-print
+    "TID252",  # flake8-tidy-imports: ban relative imports
+    "UP",  # pyupgrade
+]
+unfixable = [
+    "ERA",  # eradicate (removing commented-out code is too aggressive to auto-apply)
+]
+
+ignore = [
+    "B018",  # useless expression (property access for caching side-effect is intentional)
+    "B028",  # No explicit `stacklevel` keyword argument found
+    "B904",  # raise ... from err within an except clause
+    "B905",  # `zip()` without an explicit `strict=` parameter
+    "C420",  # rewrite dict comprehension as dict.fromkeys
+    "D100",  # missing docstring in public module
+    "D101",  # missing docstring in public class
+    "D102",  # missing docstring in public method
+    "D103",  # missing docstring in public function
+    "D104",  # missing docstring in public package
+    "D105",  # missing docstring in magic method
+    "D106",  # missing docstring in public nested class
+    "D107",  # missing docstring in __init__
+    "D202",  # no blank lines allowed after function docstring (not compatible with the formatter)
+    "E203",  # whitespace before ':' - not PEP8 compliant!
+    "E402",  # module level import not at top of file
+    "E501",  # long literals which black can't split
+    "E741",  # ambiguous variable name
+    "G004",  # f-strings in logging statements
+    "PLR0911",  # too many return statements
+    "PLR0912",  # too many branches
+    "PLR0913",  # too many arguments to function call (ML models need many inputs)
+    "PLR0915",  # too many statements
+    "PLR2004",  # magic value used in comparison
+    "PLW2901",  # outer loop variable overwritten by inner target
+    "RUF012",  # mutable class attributes should be annotated with typing.ClassVar
+    "SIM103",  # return condition directly
+    "SIM113",  # use enumerate() for index variable (awkward for running counters)
+    "SIM117",  # single with statement with multiple contexts
+    "UP010",  # unnecessary __future__ import
+    "UP030",  # use implicit references for positional format fields
+    "UP046",  # PEP 695 generic classes (avoid rewriting the public generic API)
+]
+
+[lint.flake8-import-conventions.aliases]
+"numpy" = "np"
+"pandas" = "pd"
+
+[lint.flake8-unused-arguments]
+# No error for unused *args and **kwargs
+ignore-variadic-names = true
+
+[lint.flake8-tidy-imports]
+# Disallow all relative imports.
+ban-relative-imports = "all"
+
+[lint.pydocstyle]
+convention = "numpy"
+
+[lint.pylint]
+max-returns = 10
+
+[lint.per-file-ignores]
+# Baselines mirror the previous "loose" flake8 configuration: only bugbear,
+# logging-format, breakpoint, absolute imports and pycodestyle/pyflakes apply.
+"baselines/**" = [
+    "ARG",
+    "C4",
+    "D",
+    "ERA",
+    "EXE",
+    "ICN",
+    "NPY",
+    "PL",
+    "RET",
+    "RUF",
+    "SIM",
+    "T20",
+    "UP",
+]
+"tests/**" = ["ARG", "ERA", "RUF043", "T20", "TID252"]

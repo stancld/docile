@@ -1,9 +1,10 @@
 import json
 import logging
 import os
+from collections.abc import Iterator, Sequence
 from pathlib import Path
 from random import Random
-from typing import Iterator, List, Optional, Sequence, Union, overload
+from typing import Union, overload
 
 from tqdm import tqdm
 
@@ -20,11 +21,11 @@ class Dataset:
     def __init__(
         self,
         split_name: str,
-        dataset_path: Union[Path, str, DataPaths],
+        dataset_path: Path | str | DataPaths,
         load_annotations: bool = True,
         load_ocr: bool = True,
         cache_images: CachingConfig = CachingConfig.DISK,
-        docids: Optional[Sequence[str]] = None,
+        docids: Sequence[str] | None = None,
     ):
         """
         Load dataset from index file or from a custom list of document ids.
@@ -138,7 +139,7 @@ class Dataset:
         return f"{self.data_paths.name}:{self.split_name}"
 
     @property
-    def docids(self) -> List[str]:
+    def docids(self) -> list[str]:
         return [doc.docid for doc in self.documents]
 
     def get_cluster(self, cluster_id: int) -> "Dataset":
@@ -148,16 +149,14 @@ class Dataset:
         )
 
     @overload
-    def __getitem__(self, id_or_pos_or_slice: Union[str, int]) -> Document:
+    def __getitem__(self, id_or_pos_or_slice: str | int) -> Document:
         pass
 
     @overload
     def __getitem__(self, id_or_pos_or_slice: slice) -> "Dataset":
         pass
 
-    def __getitem__(
-        self, id_or_pos_or_slice: Union[str, int, slice]
-    ) -> Union[Document, "Dataset"]:
+    def __getitem__(self, id_or_pos_or_slice: str | int | slice) -> Union[Document, "Dataset"]:
         """
         Get a single document or a sliced dataset.
 
@@ -180,11 +179,11 @@ class Dataset:
             )
         if isinstance(id_or_pos_or_slice, str):
             return self.documents[self.docid_to_index[id_or_pos_or_slice]]
-        elif isinstance(id_or_pos_or_slice, int):
+        if isinstance(id_or_pos_or_slice, int):
             return self.documents[id_or_pos_or_slice]
         raise KeyError(f"Unknown document ID or index {id_or_pos_or_slice}.")
 
-    def sample(self, sample_size: int, seed: Optional[int] = None) -> "Dataset":
+    def sample(self, sample_size: int, seed: int | None = None) -> "Dataset":
         """
         Return a dataset with a random subsample of the current documents.
 
@@ -263,7 +262,7 @@ class Dataset:
         index_path.write_text(json.dumps(self.docids, indent=2))
         logger.info(f"Stored index for {self} to file {index_path}")
 
-    def _load_docids_from_index(self, split_name: str) -> Optional[Sequence[str]]:
+    def _load_docids_from_index(self, split_name: str) -> Sequence[str] | None:
         """
         Load docids from the index file on disk.
 

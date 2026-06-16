@@ -52,7 +52,7 @@ def normalize_bbox(bbox, size):
 
 
 def tag_fields_with_entities(fields, unique_entities=[]):  # noqa: B006
-    # assumes that tokens are FieldLabels and already sorted (by text lines, i.e. vertically) and horizontaly (by x-axis)
+    # assumes that tokens are FieldLabels and already sorted (by text lines, i.e. vertically) and horizontally (by x-axis)
     # hash map for determining entity type (B, I)
     if len(unique_entities) < 1:
         entity_map = {x: False for x in classes}

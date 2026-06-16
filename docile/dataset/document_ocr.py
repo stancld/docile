@@ -1,7 +1,8 @@
 import copy
 import json
 import logging
-from typing import Any, Callable, Dict, List, Optional
+from collections.abc import Callable
+from typing import Any
 
 import numpy as np
 from PIL import Image, ImageOps
@@ -14,7 +15,7 @@ from docile.dataset.paths import PathMaybeInZip
 logger = logging.getLogger(__name__)
 
 
-class DocumentOCR(CachedObject[Dict]):
+class DocumentOCR(CachedObject[dict]):
     _model = None
 
     def __init__(
@@ -26,17 +27,17 @@ class DocumentOCR(CachedObject[Dict]):
         super().__init__(path=path, cache=cache)
         self.pdf_path = pdf_path
 
-    def from_disk(self) -> Dict:
+    def from_disk(self) -> dict:
         return json.loads(self.path.read_bytes())
 
     def to_disk(self, content: Any) -> None:
         self.path.full_path.parent.mkdir(parents=True, exist_ok=True)
         self.path.full_path.write_text(json.dumps(content))
 
-    def predict(self) -> Dict:
+    def predict(self) -> dict:
         """Predict the OCR."""
         # Load dependencies inside so that they are not needed when the pre-computed OCR is used.
-        from doctr.io import DocumentFile
+        from doctr.io import DocumentFile  # noqa: PLC0415
 
         pdf_doc = DocumentFile.from_pdf(self.pdf_path.read_bytes())
 
@@ -48,8 +49,8 @@ class DocumentOCR(CachedObject[Dict]):
         page: int,
         snapped: bool = False,
         use_cached_snapping: bool = True,
-        get_page_image: Optional[Callable[[], Image.Image]] = None,
-    ) -> List[Field]:
+        get_page_image: Callable[[], Image.Image] | None = None,
+    ) -> list[Field]:
         """
         Get all OCR words on a given page.
 
@@ -109,22 +110,22 @@ class DocumentOCR(CachedObject[Dict]):
         if cls._model:
             return cls._model
 
-        import torch
-        from doctr.models import ocr_predictor
+        import torch  # noqa: PLC0415
+        from doctr.models import ocr_predictor  # noqa: PLC0415
 
         logger.info("Initializing OCR predictor model.")
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        logger.info("DocTR using device:", device)
+        logger.info("DocTR using device: %s", device)
         cls._model = ocr_predictor(pretrained=True).to(device=device)
 
         return cls._model
 
     @staticmethod
     def _get_bbox_from_ocr_word(
-        word: Dict[str, Any],
+        word: dict[str, Any],
         snapped: bool,
         use_cached_snapping: bool,
-        get_page_image: Optional[Callable[[], Image.Image]] = None,
+        get_page_image: Callable[[], Image.Image] | None = None,
     ) -> BBox:
         """Get BBox for an OCR word and perform snapping if required."""
         bbox = DocumentOCR._get_bbox_from_ocr_geometry(word["geometry"])
@@ -145,7 +146,7 @@ class DocumentOCR(CachedObject[Dict]):
         return snapped_bbox
 
     @staticmethod
-    def _get_bbox_from_ocr_geometry(geometry: List[List[float]]) -> BBox:
+    def _get_bbox_from_ocr_geometry(geometry: list[list[float]]) -> BBox:
         """Convert the OCR geometry to the BBox structure."""
         left_top, right_bottom = geometry
         return BBox(
@@ -153,7 +154,7 @@ class DocumentOCR(CachedObject[Dict]):
         )
 
     @staticmethod
-    def _get_ocr_geometry_from_bbox(bbox: BBox) -> List[List[float]]:
+    def _get_ocr_geometry_from_bbox(bbox: BBox) -> list[list[float]]:
         """Convert the bounding box into OCR geometry format."""
         return [[bbox.left, bbox.top], [bbox.right, bbox.bottom]]
 
@@ -167,13 +168,13 @@ def _snap_bbox_to_text(bbox: BBox, page_image: Image.Image) -> BBox:
     by heuristics explained in detail in `_foreground_text_bbox` function).
     """
     # Load dependencies inside so that they are not needed when the pre-computed OCR is used.
-    import cv2
+    import cv2  # noqa: PLC0415
 
     scaled_bbox = bbox.to_absolute_coords(page_image.width, page_image.height)
     bbox_image = page_image.crop(scaled_bbox.to_tuple())
     bbox_image = ImageOps.grayscale(bbox_image)
     bbox_image_array = np.array(bbox_image)
-    threshold, bbox_image_array = cv2.threshold(
+    _, bbox_image_array = cv2.threshold(
         src=bbox_image_array, thresh=0, maxval=255, type=cv2.THRESH_BINARY | cv2.THRESH_OTSU
     )
     # We assume the more frequent color corresponds to the background.
@@ -184,14 +185,12 @@ def _snap_bbox_to_text(bbox: BBox, page_image: Image.Image) -> BBox:
     if snapped_bbox_crop is None:
         return bbox
 
-    snapped_bbox_page = BBox(
+    return BBox(
         left=snapped_bbox_crop.left + scaled_bbox.left,
         top=snapped_bbox_crop.top + scaled_bbox.top,
         right=snapped_bbox_crop.right + scaled_bbox.left,
         bottom=snapped_bbox_crop.bottom + scaled_bbox.top,
     ).to_relative_coords(page_image.width, page_image.height)
-
-    return snapped_bbox_page
 
 
 def _foreground_text_bbox(
@@ -201,7 +200,7 @@ def _foreground_text_bbox(
     min_line_height_margin: int = 10,
     min_char_width_inside: int = 2,
     min_line_height_inside: int = 5,
-) -> Optional[BBox]:
+) -> BBox | None:
     """
     Locate text inside of an array representing which pixels are in the foreground.
 
@@ -258,10 +257,10 @@ def _foreground_text_bbox(
 
     width = foreground_mask.shape[1]
     height = foreground_mask.shape[0]
-    left: Optional[int] = 0
-    top: Optional[int] = 0
-    right: Optional[int] = width
-    bottom: Optional[int] = height
+    left: int | None = 0
+    top: int | None = 0
+    right: int | None = width
+    bottom: int | None = height
 
     # Notice that the second phase is done twice as shrinking the bbox can mark further
     # rows/columns as empty. This could be true even after the second iteration but in practice two
@@ -278,18 +277,20 @@ def _foreground_text_bbox(
             # (resp. rows) within the margin as background as margins often contain noise. This is
             # not done in the second phase because if some side of the bbox did not move beyond the
             # margin in the first phase, text (not noise) is probably located within this margin.
-            foreground_rows = foreground_mask[:, margin_size : (width - margin_size)].any(axis=1)
-            foreground_columns = foreground_mask[margin_size : (height - margin_size), :].any(
-                axis=0
+            foreground_rows = np.asarray(
+                foreground_mask[:, margin_size : (width - margin_size)].any(axis=1)
+            )
+            foreground_columns = np.asarray(
+                foreground_mask[margin_size : (height - margin_size), :].any(axis=0)
             )
         else:
             # In the secnod phase, consider everything outside of (left, top, right, bottom) as
             # background (as if the image was already cropped).
-            foreground_rows = foreground_mask[:, left:right].any(axis=1)
+            foreground_rows = np.asarray(foreground_mask[:, left:right].any(axis=1))
             foreground_rows[:top] = 0
             foreground_rows[bottom:] = 0
 
-            foreground_columns = foreground_mask[top:bottom, :].any(axis=0)
+            foreground_columns = np.asarray(foreground_mask[top:bottom, :].any(axis=0))
             foreground_columns[:left] = 0
             foreground_columns[right:] = 0
 
@@ -327,8 +328,8 @@ def _foreground_text_bbox(
 
 
 def _find_nonzero_sequence(
-    sequence: np.ndarray, stop_at: Optional[int], min_consecutive_nonzero: int, from_start: bool
-) -> Optional[int]:
+    sequence: np.ndarray, stop_at: int | None, min_consecutive_nonzero: int, from_start: bool
+) -> int | None:
     """
     Find the first (or last) subsequence of consecutive non-zero values.
 
@@ -366,7 +367,7 @@ def _find_nonzero_sequence(
             idx + min_consecutive_nonzero <= len(sequence)
             and sequence[idx : (idx + min_consecutive_nonzero)].all()
         ):
-            return idx
+            return int(idx)
 
     # Return the maximum allowed value or `None` if `stop_at` is not set.
     return stop_at

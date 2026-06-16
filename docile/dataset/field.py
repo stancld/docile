@@ -1,8 +1,9 @@
 import dataclasses
 import json
 import warnings
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
+from typing import Any
 
 from docile.dataset.bbox import BBox
 
@@ -11,10 +12,10 @@ from docile.dataset.bbox import BBox
 class Field:
     bbox: BBox
     page: int
-    score: Optional[float] = None
-    text: Optional[str] = None
-    fieldtype: Optional[str] = None
-    line_item_id: Optional[int] = None
+    score: float | None = None
+    text: str | None = None
+    fieldtype: str | None = None
+    line_item_id: int | None = None
 
     # The flag `use_only_for_ap` can be set for some predictions in which case these will be only
     # used for Average Precision (AP) computation but they will not be used for:
@@ -46,13 +47,13 @@ class Field:
 
         return cls(bbox=bbox, **dct_copy)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         dct = dataclasses.asdict(self)
         dct["bbox"] = dataclasses.astuple(self.bbox)
         return dct
 
     @property
-    def score_sort_key(self) -> Tuple[bool, float]:
+    def score_sort_key(self) -> tuple[bool, float]:
         """
         Sort key used to sort predictions by score from highest to lowest.
 
@@ -84,7 +85,7 @@ def store_predictions(path: Path, docid_to_predictions: Mapping[str, Sequence[Fi
     )
 
 
-def load_predictions(path: Path) -> Dict[str, List[Field]]:
+def load_predictions(path: Path) -> dict[str, list[Field]]:
     docid_to_raw_predictions = json.loads(path.read_text())
     return {
         docid: [Field.from_dict(prediction) for prediction in predictions]
