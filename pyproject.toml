@@ -1,6 +1,6 @@
 [project]
 name = "docile-benchmark"
-version = "0.3.4"
+version = "0.3.5"
 description = "Tools to work with the DocILE dataset and benchmark"
 readme = "README.md"
 requires-python = ">=3.11,<3.15"
