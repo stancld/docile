@@ -5,18 +5,17 @@ import torch.utils.checkpoint
 from torch import nn
 from torch.nn import BCEWithLogitsLoss
 from transformers.modeling_outputs import TokenClassifierOutput
-from transformers.models.bert.modeling_bert import _CONFIG_FOR_DOC
 from transformers.models.xlm_roberta import XLMRobertaModel
-from transformers.models.xlm_roberta.modeling_xlm_roberta import (
-    XLM_ROBERTA_INPUTS_DOCSTRING,
-    XLM_ROBERTA_START_DOCSTRING,
-    XLMRobertaPreTrainedModel,
-)
+from transformers.models.xlm_roberta.modeling_xlm_roberta import XLMRobertaPreTrainedModel
 from transformers.utils import (
     add_code_sample_docstrings,
     add_start_docstrings,
     add_start_docstrings_to_model_forward,
 )
+
+_CONFIG_FOR_DOC = "RobertaConfig"
+_XLM_ROBERTA_START_DOCSTRING = ""
+_XLM_ROBERTA_INPUTS_DOCSTRING = "{0}"
 
 
 class MyRobertaClassificationHead(nn.Module):
@@ -49,7 +48,7 @@ class MyRobertaClassificationHead(nn.Module):
     XLM-RoBERTa Model with a token classification head on top (a linear layer on top of the hidden-states output) e.g.
     for Named-Entity-Recognition (NER) tasks.
     """,
-    XLM_ROBERTA_START_DOCSTRING,
+    _XLM_ROBERTA_START_DOCSTRING,
 )
 # Copied from transformers.models.roberta.modeling_roberta.RobertaForTokenClassification with Roberta->XLMRoberta, ROBERTA->XLM_ROBERTA
 class MyXLMRobertaMLForTokenClassification(XLMRobertaPreTrainedModel):
@@ -111,7 +110,7 @@ class MyXLMRobertaMLForTokenClassification(XLMRobertaPreTrainedModel):
         self.post_init()
 
     @add_start_docstrings_to_model_forward(
-        XLM_ROBERTA_INPUTS_DOCSTRING.format("batch_size, sequence_length")
+        _XLM_ROBERTA_INPUTS_DOCSTRING.format("batch_size, sequence_length")
     )
     @add_code_sample_docstrings(
         checkpoint="Jean-Baptiste/roberta-large-ner-english",

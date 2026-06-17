@@ -300,9 +300,13 @@ def get_center_line_clusters(line_item):
     # group text boxes by heights
     groups_heights = {}
     for field in line_item:
-        g = np.array(
-            list(map(lambda height: np.abs(field.bbox.height - height), heights_cluster_centers))
-        ).argmin()
+        g = int(
+            np.array(
+                list(
+                    map(lambda height: np.abs(field.bbox.height - height), heights_cluster_centers)
+                )
+            ).argmin()
+        )
         gid = heights_cluster_centers[g]
         if gid not in groups_heights:
             groups_heights[gid] = [field]
@@ -347,10 +351,12 @@ def split_fields_by_text_lines(line_item):
     clusters = get_center_line_clusters(line_item)
     new_line_item = []
     for ft in line_item:
-        g = np.array(
-            # list(map(lambda y: (ft.bbox.centroid[1] - y) ** 2, clusters.values()))
-            list(map(lambda y: np.abs(ft.bbox.to_tuple()[1] - y), clusters.values()))
-        ).argmin()
+        g = int(
+            np.array(
+                # list(map(lambda y: (ft.bbox.centroid[1] - y) ** 2, clusters.values()))
+                list(map(lambda y: np.abs(ft.bbox.to_tuple()[1] - y), clusters.values()))
+            ).argmin()
+        )
         updated_ft = dataclasses.replace(ft, groups=[g])
         new_line_item.append(updated_ft)
     return new_line_item, clusters
@@ -689,7 +695,9 @@ def prepare_hf_dataset(
 
 if __name__ == "__main__":
     # https://github.com/huggingface/datasets/issues/6396#issuecomment-1806955672
-    pyarrow.PyExtensionType.set_auto_load(True)
+    # PyExtensionType was removed in pyarrow 14+; set_auto_load is a no-op in modern datasets
+    if hasattr(pyarrow, "PyExtensionType"):
+        pyarrow.PyExtensionType.set_auto_load(True)
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -952,7 +960,7 @@ if __name__ == "__main__":
 
     training_args = TrainingArguments(
         output_dir=os.path.join(args.output_dir),
-        evaluation_strategy="epoch",
+        eval_strategy="epoch",
         save_strategy="epoch",
         learning_rate=args.lr,
         per_device_train_batch_size=args.train_bs,
