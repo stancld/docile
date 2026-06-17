@@ -8,6 +8,9 @@ RUN apt-get install poppler-utils -y
 # Install uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
+# Keep the project virtualenv outside /app so it is not hidden by the bind mount.
+ENV UV_PROJECT_ENVIRONMENT=/opt/docile-venv
+
 WORKDIR /app
 COPY uv.lock pyproject.toml /app/
 
