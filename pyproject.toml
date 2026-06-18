@@ -50,6 +50,7 @@ baselines = [
     "timm>=0.6.11,<2",
     "botocore>=1.38,<2",
     "aiobotocore>=2.23,<3",
+    "dill>=0.4.1",
 ]
 
 [project.scripts]

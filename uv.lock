@@ -828,11 +828,11 @@ wheels = [
 
 [[package]]
 name = "dill"
-version = "0.3.6"
+version = "0.4.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/7c/e7/364a09134e1062d4d5ff69b853a56cf61c223e0afcc6906b6832bcd51ea8/dill-0.3.6.tar.gz", hash = "sha256:e5db55f3687856d8fbdab002ed78544e1c4559a130302693d839dfe8f93f2373", size = 179026, upload-time = "2022-10-23T22:46:33.146Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/81/e1/56027a71e31b02ddc53c7d65b01e68edf64dea2932122fe7746a516f75d5/dill-0.4.1.tar.gz", hash = "sha256:423092df4182177d4d8ba8290c8a5b640c66ab35ec7da59ccfa00f6fa3eea5fa", size = 187315, upload-time = "2026-01-19T02:36:56.85Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/be/e3/a84bf2e561beed15813080d693b4b27573262433fced9c1d1fea59e60553/dill-0.3.6-py3-none-any.whl", hash = "sha256:a07ffd2351b8c678dfc4a856a3005f8067aea51d6ba6c700796a4d9e280f39f0", size = 110515, upload-time = "2022-10-23T22:46:30.986Z" },
+    { url = "https://files.pythonhosted.org/packages/1e/77/dc8c558f7593132cf8fefec57c4f60c83b16941c574ac5f619abb3ae7933/dill-0.4.1-py3-none-any.whl", hash = "sha256:1e1ce33e978ae97fcfcff5638477032b801c46c7c65cf717f95fbc2248f79a9d", size = 120019, upload-time = "2026-01-19T02:36:55.663Z" },
 ]
 
 [[package]]
@@ -862,6 +862,7 @@ baselines = [
     { name = "aiobotocore" },
     { name = "botocore" },
     { name = "datasets" },
+    { name = "dill" },
     { name = "pytorch-lightning", extra = ["extra"] },
     { name = "scikit-learn" },
     { name = "sentencepiece" },
@@ -896,6 +897,7 @@ requires-dist = [
     { name = "botocore", marker = "extra == 'baselines'", specifier = ">=1.38,<2" },
     { name = "click", specifier = ">=8.2,<9" },
     { name = "datasets", extras = ["s3"], marker = "extra == 'baselines'", specifier = ">=4,<5" },
+    { name = "dill", marker = "extra == 'baselines'", specifier = ">=0.4.1" },
     { name = "ipywidgets", marker = "extra == 'interactive'", specifier = ">=8.0.4,<9" },
     { name = "jupyterlab", marker = "extra == 'interactive'", specifier = ">=4.0,<5" },
     { name = "networkx", extras = ["default"], specifier = ">=3.3,<4" },
